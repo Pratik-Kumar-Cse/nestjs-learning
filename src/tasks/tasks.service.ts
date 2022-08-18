@@ -10,11 +10,15 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class TasksService {
-  constructor(
+  constructor (
     @InjectRepository(TasksRepository)
-    private tasksRepository: TasksRepository,
+    private tasksRepository: TasksRepository
   ) {}
   //private tasks: Task[] = [];
+
+  async getTasks(filterDto: GetTaskFilterDto): Promise<Task[]> {
+    return this.tasksRepository.getTasks(filterDto);
+  }
 
   // public getAllTasks() {
   //   return this.tasks;
@@ -41,18 +45,22 @@ export class TasksService {
   //   return task;
   // }
 
-  async createTask(createTaskDto: CreateTaskDto): Promise<Task> { 
+  async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
     return this.tasksRepository.createTask(createTaskDto);
-    // const { title, description } = createTaskDto;
-    // console.log('createTaskDto', createTaskDto);
-    // const task = this.tasksRepository.create({
-    //   title: title,
-    //   description: description,
-    //   status: TaskStatus.OPEN,
-    // });
-    // await this.tasksRepository.save(task);
-    // return task;
   }
+
+  // async createTask(createTaskDto: CreateTaskDto): Promise<Task> { 
+  //   return this.tasksRepository.createTask(createTaskDto);
+  //   // const { title, description } = createTaskDto;
+  //   // console.log('createTaskDto', createTaskDto);
+  //   // const task = this.tasksRepository.create({
+  //   //   title: title,
+  //   //   description: description,
+  //   //   status: TaskStatus.OPEN,
+  //   // });
+  //   // await this.tasksRepository.save(task);
+  //   // return task;
+  // }
 
   // createTask(CreateTaskDto: CreateTaskDto): Task {
   //   const { title, description } = CreateTaskDto;
@@ -66,10 +74,24 @@ export class TasksService {
   //   return task;
   // }
 
+  async deleteTask(id: string): Promise<void> {
+    const result = await this.tasksRepository.delete({ id });
+    if (result.affected === 0) {
+      throw new NotFoundException(`Task with ID "${id}" not found`);
+    }
+  }
+
   // deleteTask(id: string): void {
   //   //const found = this.getTaskById(id);
   //   this.tasks = this.tasks.filter((task) => task.id !== id);
   // }
+
+  async updateTaskStatus(id: string, status: TaskStatus): Promise<Task> {
+    const task = await this.getTasksById(id);
+    task.status = status;
+    await this.tasksRepository.save(task);
+    return task;
+  }
 
   // updateTaskStatus(id: string, status: TaskStatus): Task {
   //   const task = this.getTaskById(id);

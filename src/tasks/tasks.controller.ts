@@ -14,6 +14,11 @@ export class TasksController {
   //   return this.tasksService.getAllTasks();
   // }
 
+  @Get()
+  getTasks(@Query() filterDto: GetTaskFilterDto): Promise<Task[]> {
+    return this.tasksService.getTasks(filterDto);
+  }
+
   // @Get()
   // getTasks(@Query() filterDto: GetTaskFilterDto): Task[] {
   //   if (Object.keys(filterDto).length) {
@@ -56,10 +61,24 @@ export class TasksController {
   //   return this.tasksService.getTaskById(id);
   // }
 
+  @Post('/:id')
+  deleteTask(@Param('id') id: string): Promise<void> {
+    return this.tasksService.deleteTask(id);
+  }
+
   // @Post('/:id')
   // deleteTask(@Param('id') id: string): void {
   //   this.tasksService.deleteTask(id);
   // }
+
+  @Patch('/:id/status')
+  updateTaskStatus(
+    @Param('id') id: string,
+    @Body() UpdateTaskStatusDto: UpdateTaskStatusDto,
+  ): Promise<Task> {
+    const { status } = UpdateTaskStatusDto;
+    return this.tasksService.updateTaskStatus(id, status);
+  }
 
   // @Patch('/:id/status')
   // updateTaskStatus(
